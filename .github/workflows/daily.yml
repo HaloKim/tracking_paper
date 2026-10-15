@@ -2,7 +2,7 @@ name: Daily Papers
 
 on:
   schedule:
-    - cron: "30 0 * * *"   # 매일 09:30 KST, 전날(UTC) 논문 처리
+    - cron: "0 22 * * *"   # 매일 07:00 KST(22:00 UTC), 전날(KST) 논문 처리
   workflow_dispatch:
     inputs:
       date:

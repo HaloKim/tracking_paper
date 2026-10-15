@@ -1,7 +1,7 @@
 """Hugging Face Daily Papers를 받아 한국어 요약(제목/배경/요약/한계)을 data/YYYY-MM-DD.json에 저장한다.
 
 사용법:
-  HF_TOKEN=hf_xxx python scripts/fetch.py               # 어제(UTC) 날짜
+  HF_TOKEN=hf_xxx python scripts/fetch.py               # 어제(한국 시간) 날짜
   HF_TOKEN=hf_xxx python scripts/fetch.py 2026-10-14    # 특정 날짜
 환경변수:
   HF_TOKEN     Hugging Face 토큰 (Inference Providers 사용 권한)
@@ -23,6 +23,7 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 PAPERS_API = "https://huggingface.co/api/daily_papers?date={date}&limit=100"
 CHAT_API = "https://router.huggingface.co/v1/chat/completions"
 MODEL = os.environ.get("HF_MODEL") or "deepseek-ai/DeepSeek-V4.1-Flash"
+KST = dt.timezone(dt.timedelta(hours=9))
 FIELDS = ("title_ko", "background", "summary", "limitations")
 
 PROMPT = """다음은 AI 논문의 제목과 초록입니다. 한국어로 정리해 주세요.
@@ -106,7 +107,7 @@ def save(out, date, papers, rest, existing):
 
 
 def main():
-    date = sys.argv[1] if len(sys.argv) > 1 else (dt.datetime.now(dt.timezone.utc).date() - dt.timedelta(days=1)).isoformat()
+    date = sys.argv[1] if len(sys.argv) > 1 else (dt.datetime.now(KST).date() - dt.timedelta(days=1)).isoformat()
     dry_run = os.environ.get("DRY_RUN") == "1"
     token = os.environ.get("HF_TOKEN")
     if not token and not dry_run:

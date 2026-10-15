@@ -13,7 +13,7 @@
 4. **Pages 활성화**: Settings → Pages → Source를 **GitHub Actions**로 선택.
 5. Actions 탭 → *Daily Papers* → *Run workflow*로 첫 실행 (날짜 입력 가능, 예: `2026-10-14`).
 
-이후 매일 09:30 KST에 전날 논문이 자동으로 추가됩니다.
+이후 매일 07:00 KST에 전날 논문이 자동으로 추가됩니다.
 
 ## 로컬 실행
 
