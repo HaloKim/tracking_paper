@@ -32,6 +32,7 @@ jobs:
           python-version: "3.12"
 
       - name: Fetch & summarize
+        timeout-minutes: 60
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_MODEL: ${{ vars.HF_MODEL }}
@@ -39,7 +40,7 @@ jobs:
         run: python scripts/fetch.py ${{ inputs.date }}
 
       - name: Commit data
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -48,14 +49,14 @@ jobs:
           git push
 
       - name: Build site
-        if: always()
+        if: ${{ !cancelled() }}
         run: python scripts/build.py site
 
       - uses: actions/upload-pages-artifact@v3
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           path: site
 
       - id: deploy
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/deploy-pages@v4

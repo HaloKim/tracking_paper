@@ -99,6 +99,12 @@ def summarize(title, abstract, token, retries=6):
     raise RuntimeError(last)
 
 
+def save(out, date, papers, rest, existing):
+    """중간 저장: 아직 처리하지 않은 논문은 기존 기록을 유지해 타임아웃/중단 시에도 진행분이 남게 한다."""
+    pending = [existing[it["paper"]["id"]] for it in rest if it["paper"]["id"] in existing]
+    out.write_text(json.dumps({"date": date, "model": MODEL, "papers": papers + pending}, ensure_ascii=False, indent=1))
+
+
 def main():
     date = sys.argv[1] if len(sys.argv) > 1 else (dt.datetime.now(dt.timezone.utc).date() - dt.timedelta(days=1)).isoformat()
     dry_run = os.environ.get("DRY_RUN") == "1"
@@ -148,8 +154,8 @@ def main():
                 failed += 1
                 print(f"[{i}/{len(items)}] {rec['id']} 실패: {e}", file=sys.stderr)
         papers.append(rec)
+        save(out, date, papers, items[i:], existing)
 
-    out.write_text(json.dumps({"date": date, "model": MODEL, "papers": papers}, ensure_ascii=False, indent=1))
     print(f"{date}: {len(papers)}편 저장 (실패 {failed}) -> {out}")
     if fatal:
         sys.exit(1)
