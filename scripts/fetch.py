@@ -68,25 +68,34 @@ def parse_json(text):
     return {k: str(obj[k]).strip() for k in FIELDS}
 
 
-def summarize(title, abstract, token, retries=3):
+def summarize(title, abstract, token, retries=6):
     body = {
         "model": MODEL,
         "messages": [{"role": "user", "content": PROMPT.format(title=title, abstract=abstract)}],
         "temperature": 0.3,
-        "max_tokens": 1500,
+        # 추론(reasoning) 모델은 생각 토큰도 max_tokens에 포함되므로 넉넉하게 잡는다
+        "max_tokens": 8192,
     }
     last = None
     for attempt in range(retries):
+        wait = min(10 * 2**attempt, 120)
         try:
-            resp = http_json(CHAT_API, body, token)
-            return parse_json(resp["choices"][0]["message"]["content"])
+            resp = http_json(CHAT_API, body, token, timeout=300)
+            choice = resp["choices"][0]
+            content = choice["message"].get("content") or ""
+            if choice.get("finish_reason") == "length":
+                raise ValueError(f"출력이 max_tokens에서 잘림 (content {len(content)}자)")
+            return parse_json(content)
         except urllib.error.HTTPError as e:
             last = f"HTTP {e.code}: {e.read()[:300]!r}"
             if e.code in (401, 402, 403):  # 인증/크레딧 문제는 재시도 무의미
                 raise FatalError(last)
+            if e.code == 429 and e.headers.get("Retry-After", "").isdigit():
+                wait = max(wait, int(e.headers["Retry-After"]))
         except Exception as e:  # noqa: BLE001
             last = repr(e)
-        time.sleep(5 * (attempt + 1))
+        if attempt + 1 < retries:
+            time.sleep(wait)
     raise RuntimeError(last)
 
 
