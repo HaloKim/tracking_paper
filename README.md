@@ -9,7 +9,7 @@
 2. **Secret 등록**: 저장소 Settings → Secrets and variables → Actions → `HF_TOKEN` 추가.
 3. **(선택) Variables**: 같은 화면의 Variables 탭에서
    - `HF_MODEL`: 사용할 모델 (기본 `deepseek-ai/DeepSeek-V4.1-Flash`)
-   - `MAX_PAPERS`: upvote 상위 N편만 처리 (기본: 전부)
+   - `MAX_PAPERS`: upvote 상위 N편만 처리 (기본: 20, 0 = 전부)
 4. **Pages 활성화**: Settings → Pages → Source를 **GitHub Actions**로 선택.
 5. Actions 탭 → *Daily Papers* → *Run workflow*로 첫 실행 (날짜 입력 가능, 예: `2026-10-14`).
 
@@ -28,4 +28,4 @@ python scripts/build.py                              # site/ 생성
 ## 참고
 
 - 요약 근거는 초록뿐입니다. 초록에 한계가 명시되지 않은 경우 모델이 추정하며 `(추정)`으로 표시됩니다.
-- 하루 약 50~100편 × 1회 호출입니다. 크레딧이 부족하면 `MAX_PAPERS`를 줄이거나 더 저렴한 모델을 쓰세요.
+- 하루 최대 20편(upvote 상위) × 1회 호출입니다. 크레딧이 부족하면 `MAX_PAPERS`를 더 줄이거나 더 저렴한 모델을 쓰세요.

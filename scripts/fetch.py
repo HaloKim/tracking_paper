@@ -6,7 +6,7 @@
 환경변수:
   HF_TOKEN     Hugging Face 토큰 (Inference Providers 사용 권한)
   HF_MODEL     사용할 모델 (기본: deepseek-ai/DeepSeek-V4.1-Flash)
-  MAX_PAPERS   upvote 상위 N개만 처리 (기본: 0 = 전부)
+  MAX_PAPERS   upvote 상위 N개만 처리 (기본: 20, 0 = 전부)
   DRY_RUN=1    LLM 호출 없이 원문만 저장 (테스트용)
 """
 import datetime as dt
@@ -112,7 +112,7 @@ def main():
     token = os.environ.get("HF_TOKEN")
     if not token and not dry_run:
         sys.exit("HF_TOKEN 환경변수가 필요합니다.")
-    max_papers = int(os.environ.get("MAX_PAPERS") or 0)
+    max_papers = int(os.environ.get("MAX_PAPERS") or 20)
 
     items = http_json(PAPERS_API.format(date=date))
     items.sort(key=lambda x: x["paper"].get("upvotes", 0), reverse=True)
